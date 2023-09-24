@@ -1,943 +1,168 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "kernelspec": {
-      "display_name": "Python 3",
-      "language": "python",
-      "name": "python3"
-    },
-    "language_info": {
-      "codemirror_mode": {
-        "name": "ipython",
-        "version": 3
-      },
-      "file_extension": ".py",
-      "mimetype": "text/x-python",
-      "name": "python",
-      "nbconvert_exporter": "python",
-      "pygments_lexer": "ipython3",
-      "version": "3.7.4"
-    },
-    "colab": {
-      "provenance": [],
-      "toc_visible": true,
-      "include_colab_link": true
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/aishwaryagupta720/data_science_projects/blob/main/Copy_of_21032_AishwaryaGupta_Pandas_assignment_2020.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "zJrd6_idozBl",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 34
-        },
-        "outputId": "db6decd6-11c5-473e-a153-872fb456dac5"
-      },
-      "source": [
-        "# Import the required modules in this cell\n",
-        "import pandas as pd\n",
-        "import datetime as dt\n",
-        "import reverse_geocoder as rg\n",
-        "import pprint\n",
-        "import re\n",
-        "from google.colab import drive\n",
-        "drive.mount(\"/content/drive\")\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount(\"/content/drive\", force_remount=True).\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "c3xVytCGpPjs"
-      },
-      "source": [
-        "**Dataset** : **Assignment_Crime_Data_from_2010_to_Present.csv** (present in the same drive folder)\n",
-        "Download the above csv from the drive and read it into a Pandas Dataframe.\n"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "GIhT92nQozBx",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 417
-        },
-        "outputId": "72cf30a4-56b2-44c3-c7db-4709542ea890"
-      },
-      "source": [
-        "# We will reference this dataframe as \"Main Dataframe\"\n",
-        "\n",
-        "df = pd.read_csv(\"Assignment_Crime_Data_from_2010_to_Present.csv\")\n",
-        "df.head()\n",
-        "\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "execute_result",
-          "data": {
-            "text/html": [
-              "<div>\n",
-              "<style scoped>\n",
-              "    .dataframe tbody tr th:only-of-type {\n",
-              "        vertical-align: middle;\n",
-              "    }\n",
-              "\n",
-              "    .dataframe tbody tr th {\n",
-              "        vertical-align: top;\n",
-              "    }\n",
-              "\n",
-              "    .dataframe thead th {\n",
-              "        text-align: right;\n",
-              "    }\n",
-              "</style>\n",
-              "<table border=\"1\" class=\"dataframe\">\n",
-              "  <thead>\n",
-              "    <tr style=\"text-align: right;\">\n",
-              "      <th></th>\n",
-              "      <th>DR Number</th>\n",
-              "      <th>Date Reported</th>\n",
-              "      <th>Date Occurred</th>\n",
-              "      <th>Time Occurred</th>\n",
-              "      <th>Area ID</th>\n",
-              "      <th>Area Name</th>\n",
-              "      <th>Reporting District</th>\n",
-              "      <th>Crime Code</th>\n",
-              "      <th>Crime Code Description</th>\n",
-              "      <th>MO Codes</th>\n",
-              "      <th>Victim Age</th>\n",
-              "      <th>Victim Sex</th>\n",
-              "      <th>Victim Descent</th>\n",
-              "      <th>Premise Code</th>\n",
-              "      <th>Premise Description</th>\n",
-              "      <th>Weapon Used Code</th>\n",
-              "      <th>Weapon Description</th>\n",
-              "      <th>Status Code</th>\n",
-              "      <th>Status Description</th>\n",
-              "      <th>Crime Code 1</th>\n",
-              "      <th>Crime Code 2</th>\n",
-              "      <th>Crime Code 3</th>\n",
-              "      <th>Crime Code 4</th>\n",
-              "      <th>Address</th>\n",
-              "      <th>Cross Street</th>\n",
-              "      <th>Location</th>\n",
-              "    </tr>\n",
-              "  </thead>\n",
-              "  <tbody>\n",
-              "    <tr>\n",
-              "      <th>0</th>\n",
-              "      <td>100100562</td>\n",
-              "      <td>01/28/2010</td>\n",
-              "      <td>01/28/2010</td>\n",
-              "      <td>2345</td>\n",
-              "      <td>1</td>\n",
-              "      <td>Central</td>\n",
-              "      <td>152</td>\n",
-              "      <td>626</td>\n",
-              "      <td>INTIMATE PARTNER - SIMPLE ASSAULT</td>\n",
-              "      <td>0416 2000</td>\n",
-              "      <td>28</td>\n",
-              "      <td>M</td>\n",
-              "      <td>O</td>\n",
-              "      <td>108.0</td>\n",
-              "      <td>PARKING LOT</td>\n",
-              "      <td>400.0</td>\n",
-              "      <td>STRONG-ARM (HANDS, FIST, FEET OR BODILY FORCE)</td>\n",
-              "      <td>IC</td>\n",
-              "      <td>Invest Cont</td>\n",
-              "      <td>626.0</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>500 S  GRAND                        AV</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>(34.0502, -118.254)</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>1</th>\n",
-              "      <td>100100575</td>\n",
-              "      <td>02/01/2010</td>\n",
-              "      <td>01/31/2010</td>\n",
-              "      <td>1720</td>\n",
-              "      <td>1</td>\n",
-              "      <td>Central</td>\n",
-              "      <td>181</td>\n",
-              "      <td>341</td>\n",
-              "      <td>THEFT-GRAND ($950.01 &amp; OVER)EXCPT,GUNS,FOWL,LI...</td>\n",
-              "      <td>1402</td>\n",
-              "      <td>36</td>\n",
-              "      <td>M</td>\n",
-              "      <td>W</td>\n",
-              "      <td>710.0</td>\n",
-              "      <td>OTHER PREMISE</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>AA</td>\n",
-              "      <td>Adult Arrest</td>\n",
-              "      <td>341.0</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>1100 S  FIGUEROA                     ST</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>(34.0437, -118.2652)</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>2</th>\n",
-              "      <td>100100610</td>\n",
-              "      <td>02/11/2010</td>\n",
-              "      <td>02/10/2010</td>\n",
-              "      <td>1800</td>\n",
-              "      <td>1</td>\n",
-              "      <td>Central</td>\n",
-              "      <td>162</td>\n",
-              "      <td>442</td>\n",
-              "      <td>SHOPLIFTING - PETTY THEFT ($950 &amp; UNDER)</td>\n",
-              "      <td>0325 1402</td>\n",
-              "      <td>23</td>\n",
-              "      <td>M</td>\n",
-              "      <td>B</td>\n",
-              "      <td>404.0</td>\n",
-              "      <td>DEPARTMENT STORE</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>AA</td>\n",
-              "      <td>Adult Arrest</td>\n",
-              "      <td>442.0</td>\n",
-              "      <td>998.0</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>700 W  7TH                          ST</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>(34.048, -118.2577)</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>3</th>\n",
-              "      <td>100100616</td>\n",
-              "      <td>02/11/2010</td>\n",
-              "      <td>02/11/2010</td>\n",
-              "      <td>1515</td>\n",
-              "      <td>1</td>\n",
-              "      <td>Central</td>\n",
-              "      <td>192</td>\n",
-              "      <td>341</td>\n",
-              "      <td>THEFT-GRAND ($950.01 &amp; OVER)EXCPT,GUNS,FOWL,LI...</td>\n",
-              "      <td>1212</td>\n",
-              "      <td>0</td>\n",
-              "      <td>M</td>\n",
-              "      <td>H</td>\n",
-              "      <td>102.0</td>\n",
-              "      <td>SIDEWALK</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>AA</td>\n",
-              "      <td>Adult Arrest</td>\n",
-              "      <td>341.0</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>PICO</td>\n",
-              "      <td>GRAND</td>\n",
-              "      <td>(34.0389, -118.2643)</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>4</th>\n",
-              "      <td>100100638</td>\n",
-              "      <td>02/20/2010</td>\n",
-              "      <td>02/20/2010</td>\n",
-              "      <td>100</td>\n",
-              "      <td>1</td>\n",
-              "      <td>Central</td>\n",
-              "      <td>164</td>\n",
-              "      <td>740</td>\n",
-              "      <td>VANDALISM - FELONY ($400 &amp; OVER, ALL CHURCH VA...</td>\n",
-              "      <td>0329</td>\n",
-              "      <td>0</td>\n",
-              "      <td>M</td>\n",
-              "      <td>O</td>\n",
-              "      <td>101.0</td>\n",
-              "      <td>STREET</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>AA</td>\n",
-              "      <td>Adult Arrest</td>\n",
-              "      <td>740.0</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>100 W  7TH                          ST</td>\n",
-              "      <td>NaN</td>\n",
-              "      <td>(34.0439, -118.2514)</td>\n",
-              "    </tr>\n",
-              "  </tbody>\n",
-              "</table>\n",
-              "</div>"
-            ],
-            "text/plain": [
-              "   DR Number Date Reported  ... Cross Street             Location \n",
-              "0  100100562    01/28/2010  ...          NaN   (34.0502, -118.254)\n",
-              "1  100100575    02/01/2010  ...          NaN  (34.0437, -118.2652)\n",
-              "2  100100610    02/11/2010  ...          NaN   (34.048, -118.2577)\n",
-              "3  100100616    02/11/2010  ...        GRAND  (34.0389, -118.2643)\n",
-              "4  100100638    02/20/2010  ...          NaN  (34.0439, -118.2514)\n",
-              "\n",
-              "[5 rows x 26 columns]"
-            ]
-          },
-          "metadata": {
-            "tags": []
-          },
-          "execution_count": 3
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "Tw_rOErrozB4"
-      },
-      "source": [
-        "### Question 1 : Use any 5 pandas attributes to understand the DataFrame structure and metadata."
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "OisR8DUkrEm7",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 907
-        },
-        "outputId": "9f761585-9d08-426d-a0e2-7b1473fad406"
-      },
-      "source": [
-        "# Write answer here\n",
-        "\n",
-        "list(df.head().index)\n",
-        "print(\"Geenral Info: \",df.info)\n",
-        "print(\"Column Values: \",df.columns)\n",
-        "print(\"Index Range: \",df.index)\n",
-        "print(\"Datatypes in DF: \",df.dtypes)\n",
-        "print(\"Dimensions of DataFrame: \",df.shape)\n",
-        "print(\"Size of DataFrame\",df.size)\n",
-        "rows=len(df.axes[0])\n",
-        "cols=len(df.axes[1])\n",
-        "print(\"Number of rows:\",rows,\" and Number of Columns:\",cols)"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Geenral Info:  <bound method DataFrame.info of         DR Number Date Reported  ... Cross Street             Location \n",
-            "0       100100562    01/28/2010  ...          NaN   (34.0502, -118.254)\n",
-            "1       100100575    02/01/2010  ...          NaN  (34.0437, -118.2652)\n",
-            "2       100100610    02/11/2010  ...          NaN   (34.048, -118.2577)\n",
-            "3       100100616    02/11/2010  ...        GRAND  (34.0389, -118.2643)\n",
-            "4       100100638    02/20/2010  ...          NaN  (34.0439, -118.2514)\n",
-            "...           ...           ...  ...          ...                   ...\n",
-            "140527  150901457    10/16/2015  ...          NaN  (34.1839, -118.4605)\n",
-            "140528  150901458    10/17/2015  ...          NaN  (34.1766, -118.4589)\n",
-            "140529  150901459    10/16/2015  ...          NaN  (34.1887, -118.4509)\n",
-            "140530  150901460    10/16/2015  ...          NaN    (34.1877, -118.44)\n",
-            "140531  150901462    10/17/2015  ...          NaN                   NaN\n",
-            "\n",
-            "[140532 rows x 26 columns]>\n",
-            "Column Values:  Index(['DR Number', 'Date Reported', 'Date Occurred', 'Time Occurred',\n",
-            "       'Area ID', 'Area Name', 'Reporting District', 'Crime Code',\n",
-            "       'Crime Code Description', 'MO Codes', 'Victim Age', 'Victim Sex',\n",
-            "       'Victim Descent', 'Premise Code', 'Premise Description',\n",
-            "       'Weapon Used Code', 'Weapon Description', 'Status Code',\n",
-            "       'Status Description', 'Crime Code 1', 'Crime Code 2', 'Crime Code 3',\n",
-            "       'Crime Code 4', 'Address', 'Cross Street', 'Location '],\n",
-            "      dtype='object')\n",
-            "Index Range:  RangeIndex(start=0, stop=140532, step=1)\n",
-            "Datatypes in DF:  DR Number                   int64\n",
-            "Date Reported              object\n",
-            "Date Occurred              object\n",
-            "Time Occurred               int64\n",
-            "Area ID                     int64\n",
-            "Area Name                  object\n",
-            "Reporting District          int64\n",
-            "Crime Code                  int64\n",
-            "Crime Code Description     object\n",
-            "MO Codes                   object\n",
-            "Victim Age                  int64\n",
-            "Victim Sex                 object\n",
-            "Victim Descent             object\n",
-            "Premise Code              float64\n",
-            "Premise Description        object\n",
-            "Weapon Used Code          float64\n",
-            "Weapon Description         object\n",
-            "Status Code                object\n",
-            "Status Description         object\n",
-            "Crime Code 1              float64\n",
-            "Crime Code 2              float64\n",
-            "Crime Code 3              float64\n",
-            "Crime Code 4              float64\n",
-            "Address                    object\n",
-            "Cross Street               object\n",
-            "Location                   object\n",
-            "dtype: object\n",
-            "Dimensions of DataFrame:  (140532, 26)\n",
-            "Size of DataFrame 3653832\n",
-            "Number of rows: 140532  and Number of Columns: 26\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "Tfv6itx7ozCA"
-      },
-      "source": [
-        "### Question 2: Create another blank DataFrame and insert the data from this sheet -->\n",
-        "**Python Assignment.xlsx**(Present in the same drive folder) And append this new dataframe to the main dataframe . (Hint Check the structure after appending the DataFrame)\n",
-        "\n"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "4Y6DPWfsrFom",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 554
-        },
-        "outputId": "986e2fd8-9499-46ed-c9a3-6c0e5d7e839c"
-      },
-      "source": [
-        "# Write answer here\n",
-        "print(\"Shape of Main DataFrame before appending: \",len(df.axes[0]))\n",
-        "df_side=pd.read_excel(\"Python Assignment.xlsx\")\n",
-        "print(\"Shape of Side DataFrame: \",len(df_side.axes[0]))\n",
-        "\n",
-        "# print(df.dtypes)\n",
-        "# print(df_side.dtypes)\n",
-        "\n",
-        "df_main=df.append(df_side,ignore_index=True,verify_integrity=True)\n",
-        "\n",
-        "# print(df_main.dtypes)\n",
-        "\n",
-        "# Datetime formats were inconsistent\n",
-        "dt_format='%d/%m/%Y'\n",
-        "#convert to datetime datatype then make format consistent\n",
-        "df_main['Date Occurred'] = pd.to_datetime(df_main['Date Occurred']).dt.strftime(dt_format)\n",
-        "df_main['Date Reported'] = pd.to_datetime(df_main['Date Reported']).dt.strftime(dt_format)\n",
-        "\n",
-        "\n",
-        "\n",
-        "print(\"Shape of Main DataFrame after appending: \",len(df_main.axes[0]))\n",
-        "\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Shape of Main DataFrame before appending:  140532\n",
-            "Shape of Side DataFrame:  5\n",
-            "DR Number                   int64\n",
-            "Date Reported              object\n",
-            "Date Occurred              object\n",
-            "Time Occurred               int64\n",
-            "Area ID                     int64\n",
-            "Area Name                  object\n",
-            "Reporting District          int64\n",
-            "Crime Code                  int64\n",
-            "Crime Code Description     object\n",
-            "MO Codes                   object\n",
-            "Victim Age                  int64\n",
-            "Victim Sex                 object\n",
-            "Victim Descent             object\n",
-            "Premise Code              float64\n",
-            "Premise Description        object\n",
-            "Weapon Used Code          float64\n",
-            "Weapon Description         object\n",
-            "Status Code                object\n",
-            "Status Description         object\n",
-            "Crime Code 1              float64\n",
-            "Crime Code 2              float64\n",
-            "Crime Code 3              float64\n",
-            "Crime Code 4              float64\n",
-            "Address                    object\n",
-            "Cross Street               object\n",
-            "Location                   object\n",
-            "Street                     object\n",
-            "Location                   object\n",
-            "dtype: object\n",
-            "Shape of Main DataFrame after appending:  140537\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "dBo8hH8ZozCI"
-      },
-      "source": [
-        "### Question 3.a : Find the area where maximum crimes were committed?"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "YxErq5JkrHJM",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 34
-        },
-        "outputId": "e41dfa94-9012-44cc-f1d0-f5a946828bc7"
-      },
-      "source": [
-        "# Write answer here\n",
-        "area=df_main.groupby(\"Area Name\").count().Address\n",
-        "# Grouped by Area name\n",
-        "# Counted the number of occurances of each( can find mean/median/etc).\n",
-        "# only display count of one column(arbitrary)\n",
-        "area=area.idxmax()\n",
-        "print(\"Area with Most crime Occurances: \",area)\n",
-        "# return first occurance of maximum idxmax()"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Area with Most crime Occurances:  Southwest\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "5DVa4lXeozCR"
-      },
-      "source": [
-        "### Question 3.b : Find the average age of the victims?\n"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "O0TezgfArIWm",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 34
-        },
-        "outputId": "1442def6-ef83-473f-9ba0-0466e7802a20"
-      },
-      "source": [
-        "# Write answer here\n",
-        "tdf=df_main[(df_main['Area Name']==area)]\n",
-        "age=tdf['Victim Age'].mean()\n",
-        "print(\"the average age of the victims: \",age)"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "the average age of the victims:  29.751563223714683\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "mUVpAUQZozCb"
-      },
-      "source": [
-        "### Question 4 : Which type of crime was the 5th most reported crime where the victim age is greater then 40 years?"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "SROqT-UWrJK8",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 50
-        },
-        "outputId": "027bc175-6882-409b-94a8-fe012930572a"
-      },
-      "source": [
-        "# Write answer here\n",
-        "temp=df_main[(df_main['Victim Age'] >40)]\n",
-        "# Filter df_main by (Victim age>40)\n",
-        "\n",
-        "series=temp.groupby('Crime Code Description').count().Address\n",
-        "# Grouped by Crime Code Description (as its value is important for end result)\n",
-        "# Counted the number of occurances of each( can find mean/median/etc).\n",
-        "# only display count of one column(arbitrary)\n",
-        "\n",
-        "series=series.nlargest(5)\n",
-        "# Find top 5 values based on count nlargest(5)\n",
-        "\n",
-        "print(\"5th most reported crime where the victim age is greater then 40 years:\\n\",series.tail(1).index[0])\n",
-        "# last value in top 5 (5th largest)"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "5th most reported crime where the victim age is greater then 40 years:\n",
-            " BURGLARY\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "Yp7Bbg5gozCl"
-      },
-      "source": [
-        "### Question 5 : Find the month and the year in which most of the crimes were reported?"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "_PNgVW9XrKA8",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 50
-        },
-        "outputId": "eab8f784-e837-4508-fba8-a4d2f275f3f1"
-      },
-      "source": [
-        "# Write answer here\n",
-        "\n",
-        "date=df_main.groupby(\"Date Reported\").count().Address\n",
-        "# Grouped by Date\n",
-        "# Counted the number of occurances of each( can find mean/median/etc).\n",
-        "# only display count of one column(arbitrary)\n",
-        "\n",
-        "date=date.idxmax()\n",
-        "#get max value from series\n",
-        "\n",
-        "#format saved while appending\n",
-        "date= dt.datetime.strptime(date, dt_format)\n",
-        "\n",
-        "print(\"Most crime Occurances:\\nMonth: \",date.month,\"Year: \",date.year)\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Most crime Occurances:\n",
-            "Month:  6 Year:  2015\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "AJgNpdIMozCr"
-      },
-      "source": [
-        "### Question 6 : Which weapon was used the second most no of times to commit the crime in each area?"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "KcqzHU4WrLKU",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 370
-        },
-        "outputId": "71c2b377-c529-4e1e-9982-2164b20911da"
-      },
-      "source": [
-        "# Write answer here\n",
-        "temp=df_main.sort_values('Area Name')\n",
-        "\n",
-        "area=set(temp['Area Name'].to_list())\n",
-        "area=list(area)\n",
-        "\n",
-        "for a in area:\n",
-        "  # for every area\n",
-        "  tdf=temp[(temp['Area Name']==a)]\n",
-        "\n",
-        "  #group by weapons and count rows for each\n",
-        "  weapon=tdf.groupby(\"Weapon Description\").count().Address\n",
-        "\n",
-        "  # find top 2\n",
-        "  weapon=weapon.nlargest(2)\n",
-        "\n",
-        "  #print second\n",
-        "  print(\"Area:\",a,\"  Weapon :\",weapon.tail(1).index[0])\n",
-        "\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Area: Newton   Weapon : VERBAL THREAT\n",
-            "Area: N Hollywood   Weapon : VERBAL THREAT\n",
-            "Area: Rampart   Weapon : VERBAL THREAT\n",
-            "Area: West LA   Weapon : VERBAL THREAT\n",
-            "Area: Hollywood   Weapon : VERBAL THREAT\n",
-            "Area: Mission   Weapon : VERBAL THREAT\n",
-            "Area: Devonshire   Weapon : VERBAL THREAT\n",
-            "Area: Van Nuys   Weapon : UNKNOWN WEAPON/OTHER WEAPON\n",
-            "Area: Foothill   Weapon : VERBAL THREAT\n",
-            "Area: Wilshire   Weapon : UNKNOWN WEAPON/OTHER WEAPON\n",
-            "Area: Northeast   Weapon : VERBAL THREAT\n",
-            "Area: Southeast   Weapon : UNKNOWN WEAPON/OTHER WEAPON\n",
-            "Area: Hollenbeck   Weapon : VERBAL THREAT\n",
-            "Area: Olympic   Weapon : HAND GUN\n",
-            "Area: Central   Weapon : UNKNOWN WEAPON/OTHER WEAPON\n",
-            "Area: Harbor   Weapon : VERBAL THREAT\n",
-            "Area: West Valley   Weapon : VERBAL THREAT\n",
-            "Area: Topanga   Weapon : UNKNOWN WEAPON/OTHER WEAPON\n",
-            "Area: Pacific   Weapon : UNKNOWN WEAPON/OTHER WEAPON\n",
-            "Area: 77th Street   Weapon : VERBAL THREAT\n",
-            "Area: Southwest   Weapon : VERBAL THREAT\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "YcauRxk9ozCv"
-      },
-      "source": [
-        "### Question 7 :  Find the full address where maximum crimes were committed (Hint use the location coordinates)?\n"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "2d0Cjs_OrMN0",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 118
-        },
-        "outputId": "9cddba3f-35fd-49a2-e30f-768bdb806a9d"
-      },
-      "source": [
-        "# Write answer here\n",
-        "\n",
-        "area=df_main.groupby(\"Location\").count().Address\n",
-        "area=area.idxmax()\n",
-        "\n",
-        "# extracting floating point numbers from string\n",
-        "area = re.findall(r\"[-+]?\\d*\\.\\d+|\\d+\", area)\n",
-        "\n",
-        "#using reverse-geocoder library\n",
-        "result = rg.search(area)\n",
-        "pprint.pprint(result)\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "[OrderedDict([('lat', '33.99418'),\n",
-            "              ('lon', '-118.37535'),\n",
-            "              ('name', 'Ladera Heights'),\n",
-            "              ('admin1', 'California'),\n",
-            "              ('admin2', 'Los Angeles County'),\n",
-            "              ('cc', 'US')])]\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "8jonPlqqozC2"
-      },
-      "source": [
-        "### Question 8 : Find that hour of the day in which most of the crimes were committed"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "JSLfOrq8rNDq",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 34
-        },
-        "outputId": "00e5faa7-837f-495d-a133-1ad22b9ced62"
-      },
-      "source": [
-        "# Write answer here\n",
-        "time=df_main.groupby(\"Time Occurred\").count().Address\n",
-        "time=time.idxmax()\n",
-        "print(\"hour of the day in which most of the crimes were committed: \",time)\n"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "hour of the day in which most of the crimes were committed:  1200\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "ZDgD6D19ozC6"
-      },
-      "source": [
-        "### Question 9 : For each premise find out the gender that was more victimized?"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "6yDSZy0lrN3c",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 34
-        },
-        "outputId": "3baa1c17-da87-49d5-d854-3825b4325756"
-      },
-      "source": [
-        "# Write answer here\n",
-        "gender=df_main.groupby(\"Victim Sex\").count().Address\n",
-        "gender=gender.idxmax()\n",
-        "print(\"Gender that was more victimized: \",gender)"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Gender that was more victimized:  M\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "GGPGs-zCozC-"
-      },
-      "source": [
-        "### Question 10 : Within each area find for which Ethnic Groups were the most number of crimes committed the year 2015? Hint(Use the Victim Descent [tab in this sheet](https://docs.google.com/spreadsheets/d/1RNx-Pt-rN5BNS31kkN2bcRg6HAcjhxdvw7rKqu2aoIQ/edit#gid=444749830) )\n"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "4rUYjnjnozDE",
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 302
-        },
-        "outputId": "bcb92c41-3aec-4c20-ddb3-715070a3cd86"
-      },
-      "source": [
-        "# Write answer here\n",
-        "d1 = dt.datetime(2014, 12, 21)\n",
-        "d2 = dt.datetime(2016, 1, 1)\n",
-        "df_main.dtypes\n",
-        "\n",
-        "# Filtering for dates greater than 12/12/2014\n",
-        "#converting to datetime type then comparing\n",
-        "tdf=df_main[(pd.to_datetime(df_main['Date Occurred'])>d1)]\n",
-        "#Filtering further for dates less than 1/1/2016\n",
-        "tdf=tdf[(pd.to_datetime(tdf['Date Occurred'])<d2 )]\n",
-        "\n",
-        "area=set(tdf['Area Name'].to_list())\n",
-        "area=list(area)\n",
-        "\n",
-        "for a in area:\n",
-        "  # for every area\n",
-        "  tdf=temp[(temp['Area Name']==a)]\n",
-        "\n",
-        "  #group by Victim Descent\n",
-        "  ethnicity=tdf.groupby(\"Victim Descent\").count().Address\n",
-        "  # find Descent with max crimes commited against\n",
-        "  ethnicity=ethnicity.idxmax()\n",
-        "\n",
-        "  print(\"Area:\",a,\"  Victim Descent :\",ethnicity)"
-      ],
-      "execution_count": null,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "text": [
-            "Area: Northeast   Victim Descent : W\n",
-            "Area: Newton   Victim Descent : H\n",
-            "Area: Harbor   Victim Descent : H\n",
-            "Area: Southeast   Victim Descent : B\n",
-            "Area: Rampart   Victim Descent : H\n",
-            "Area: West LA   Victim Descent : W\n",
-            "Area: Hollywood   Victim Descent : W\n",
-            "Area: Hollenbeck   Victim Descent : H\n",
-            "Area: West Valley   Victim Descent : W\n",
-            "Area: Pacific   Victim Descent : W\n",
-            "Area: Van Nuys   Victim Descent : W\n",
-            "Area: N Hollywood   Victim Descent : W\n",
-            "Area: 77th Street   Victim Descent : B\n",
-            "Area: Olympic   Victim Descent : H\n",
-            "Area: Central   Victim Descent : H\n",
-            "Area: Wilshire   Victim Descent : W\n",
-            "Area: Southwest   Victim Descent : B\n"
-          ],
-          "name": "stdout"
-        }
-      ]
-    },
-    {
-      "cell_type": "code",
-      "metadata": {
-        "id": "T7_MpJWj0d_-"
-      },
-      "source": [],
-      "execution_count": null,
-      "outputs": []
-    }
-  ]
-}
+# Import the required modules in this cell
+import pandas as pd
+import datetime as dt
+import reverse_geocoder as rg 
+import pprint
+import re
+from google.colab import drive
+drive.mount("/content/drive")
+# We will reference this dataframe as "Main Dataframe"
+
+df = pd.read_csv("Assignment_Crime_Data_from_2010_to_Present.csv")
+df.head()
+### Question 1 : Use any 5 pandas attributes to understand the DataFrame structure and metadata.
+list(df.head().index)
+print("Geenral Info: ",df.info)
+print("Column Values: ",df.columns)
+print("Index Range: ",df.index)
+print("Datatypes in DF: ",df.dtypes)
+print("Dimensions of DataFrame: ",df.shape)
+print("Size of DataFrame",df.size)
+rows=len(df.axes[0])
+cols=len(df.axes[1])
+print("Number of rows:",rows," and Number of Columns:",cols)
+
+### Question 2: Create another blank DataFrame and insert the data from this sheet --> Python Assignment.xlsx(Present in the same drive folder) And append this new dataframe to the main dataframe . (Hint Check the structure after appending the DataFrame)
+# Write answer here
+print("Shape of Main DataFrame before appending: ",len(df.axes[0]))
+df_side=pd.read_excel("Python Assignment.xlsx")
+print("Shape of Side DataFrame: ",len(df_side.axes[0]))
+
+# print(df.dtypes)
+# print(df_side.dtypes)
+
+df_main=df.append(df_side,ignore_index=True,verify_integrity=True)
+
+# print(df_main.dtypes)
+
+# Datetime formats were inconsistent
+dt_format='%d/%m/%Y'
+#convert to datetime datatype then make format consistent
+df_main['Date Occurred'] = pd.to_datetime(df_main['Date Occurred']).dt.strftime(dt_format)
+df_main['Date Reported'] = pd.to_datetime(df_main['Date Reported']).dt.strftime(dt_format)
+
+
+
+print("Shape of Main DataFrame after appending: ",len(df_main.axes[0]))
+### Question 3.a : Find the area where maximum crimes were committed?
+# Write answer here
+area=df_main.groupby("Area Name").count().Address
+# Grouped by Area name
+# Counted the number of occurances of each( can find mean/median/etc). 
+# only display count of one column(arbitrary)
+area=area.idxmax()
+print("Area with Most crime Occurances: ",area)
+# return first occurance of maximum idxmax()
+
+### Question 3.b : Find the average age of the victims?
+# Write answer here
+tdf=df_main[(df_main['Area Name']==area)]
+age=tdf['Victim Age'].mean()
+print("the average age of the victims: ",age)
+
+
+### Question 4 : Which type of crime was the 5th most reported crime where the victim age is greater then 40 years?
+# Write answer here
+temp=df_main[(df_main['Victim Age'] >40)]
+# Filter df_main by (Victim age>40)
+
+series=temp.groupby('Crime Code Description').count().Address
+# Grouped by Crime Code Description (as its value is important for end result)
+# Counted the number of occurances of each( can find mean/median/etc). 
+# only display count of one column(arbitrary)
+
+series=series.nlargest(5)
+# Find top 5 values based on count nlargest(5)
+
+print("5th most reported crime where the victim age is greater then 40 years:\n",series.tail(1).index[0])
+# last value in top 5 (5th largest)
+
+###Question 5 : Find the month and the year in which most of the crimes were reported?
+# Write answer here
+
+date=df_main.groupby("Date Reported").count().Address
+# Grouped by Date
+# Counted the number of occurances of each( can find mean/median/etc). 
+# only display count of one column(arbitrary)
+
+date=date.idxmax()
+#get max value from series 
+
+#format saved while appending
+date= dt.datetime.strptime(date, dt_format)
+
+print("Most crime Occurances:\nMonth: ",date.month,"Year: ",date.year)
+
+###Question 6 : Which weapon was used the second most no of times to commit the crime in each area?
+
+# Write answer here
+temp=df_main.sort_values('Area Name')
+
+area=set(temp['Area Name'].to_list())
+area=list(area)
+
+for a in area:
+  # for every area 
+  tdf=temp[(temp['Area Name']==a)]
+
+  #group by weapons and count rows for each
+  weapon=tdf.groupby("Weapon Description").count().Address
+  
+  # find top 2
+  weapon=weapon.nlargest(2)
+
+  #print second 
+  print("Area:",a,"  Weapon :",weapon.tail(1).index[0])
+
+
+### Question 7 : Find the full address where maximum crimes were committed (Hint use the location coordinates)?
+
+# Write answer here
+
+area=df_main.groupby("Location").count().Address
+area=area.idxmax()
+
+# extracting floating point numbers from string 
+area = re.findall(r"[-+]?\d*\.\d+|\d+", area)
+
+#using reverse-geocoder library
+result = rg.search(area) 
+pprint.pprint(result)   
+
+# Question 8 : Find that hour of the day in which most of the crimes were committed
+# Write answer here
+time=df_main.groupby("Time Occurred").count().Address
+time=time.idxmax()
+print("hour of the day in which most of the crimes were committed: ",time)
+
+# Question 9 : For each premise find out the gender that was more victimized?
+# Write answer here
+gender=df_main.groupby("Victim Sex").count().Address
+gender=gender.idxmax()
+print("Gender that was more victimized: ",gender)
+
+# Question 10 : Within each area find for which Ethnic Groups were the most number of crimes committed the year 2015? Hint(Use the Victim Descent tab in this sheet https://colab.research.google.com/corgiredirector?site=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1RNx-Pt-rN5BNS31kkN2bcRg6HAcjhxdvw7rKqu2aoIQ%2Fedit%23gid%3D444749830 ) 
+# Write answer here
+d1 = dt.datetime(2014, 12, 21)
+d2 = dt.datetime(2016, 1, 1)
+df_main.dtypes 
+
+# Filtering for dates greater than 12/12/2014
+#converting to datetime type then comparing
+tdf=df_main[(pd.to_datetime(df_main['Date Occurred'])>d1)]
+#Filtering further for dates less than 1/1/2016
+tdf=tdf[(pd.to_datetime(tdf['Date Occurred'])<d2 )]
+
+area=set(tdf['Area Name'].to_list())
+area=list(area) 
+
+for a in area:
+  # for every area 
+  tdf=temp[(temp['Area Name']==a)]
+  
+  #group by Victim Descent
+  ethnicity=tdf.groupby("Victim Descent").count().Address
+  # find Descent with max crimes commited against
+  ethnicity=ethnicity.idxmax()
+
+  print("Area:",a,"  Victim Descent :",ethnicity)
